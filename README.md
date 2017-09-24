@@ -1,5 +1,6 @@
 # Follow_me
-Controls team repo for autonomous vehicle following. 
+Controls team repo for autonomous vehicle following.
+##Polaris Gem
 ![alt text](https://github.com/AaronHavens/Follow_me/blob/master/pol_gem.jpg)
 ## Members
 Russell Tan, Jason Whited, Aaron Havens
