@@ -26,7 +26,7 @@ class car():
 		self.v = 0
 		self.theta = theta
 		self.w = 0
-		self.v_max = 10
+		self.v_max = 1000000
 		self.w_max = math.pi/4
 		self.u_v_max = 10
 		self.u_w_max = .5
@@ -55,25 +55,25 @@ class car():
 dt = .1
 c = car(0,0,0)
 c.v = 1
-iters = 100
-positions = np.zeros((2*iters,2))
-positions_track = np.zeros((2*iters,2))
+iters = 2000
+positions = np.zeros((iters,2))
+positions_track = np.zeros((iters,2))
 x = np.array([.1,.1,.1,.1])
 P = np.array([[.5,0,0,0],[0,.5,0,0],[0,0,.3,0],[0,0,0,.3]])
 for i in range(iters):
 	positions[i,:] = np.array([c.x,c.y])
 	positions_track[i,:] = x[:2]
-	x,P = tr.prediction(x,P,.5,tr.F_cv_pol)
-	c.update_state(0,.5)
-	z = make_noisy(c.x,c.y,.1)
+	x,P = tr.prediction(x,P,.1,tr.F_cv_pol)
+	c.update_state(2,.5)
+	z = make_noisy(c.x,c.y,.3)
 	x, P = tr.correct(x,P,z,tr.H_direct_observe)
-for i in range(iters):
-	positions[iters + i,:] = np.array([c.x,c.y])
-	positions_track[iters + i,:] = x[:2]
-	x,P = tr.prediction(x,P,.5,tr.F_cv_pol)
-	c.update_state(0,-.5)
-	z = make_noisy(c.x,c.y,.1)
-	x, P = tr.correct(x,P,z,tr.H_direct_observe)
+#for i in range(iters):
+#	positions[iters + i,:] = np.array([c.x,c.y])
+#	positions_track[iters + i,:] = x[:2]
+#	x,P = tr.prediction(x,P,.5,tr.F_cv_pol)
+#	c.update_state(0,-.5)
+#	z = make_noisy(c.x,c.y,.1)
+#	x, P = tr.correct(x,P,z,tr.H_direct_observe)
 
 plt.plot(positions[:,0],positions[:,1])
 plt.plot(positions_track[:,0],positions_track[:,1])
