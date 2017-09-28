@@ -23,10 +23,15 @@ def H_direct_observe(x_t):
 	h = np.array([x_t[0],x_t[1]])
 	return h,H
 
-#Stupid process noise
-def white_noise_process(dt):
+#Standard white noise formulation
+def white_noise_process(var,dt):
 	#arbitrary noise as a linear function of time
-	Q = np.array([[dt,0,0,0],[0,dt,0,0],[0,0,dt,0],[0,0,0,dt]])
+        dt_2 = dt*dt
+        dt_3 = dt_2*dt
+        dt_4 = dt_3*dt
+        dt_4_4 = dt_4 / 4
+        dt_3_2 = dt_3 / 2
+	Q = np.array([[dt_4_4*var,0,dt_3_2*var,0],[0,dt_4_4*var,0,dt_3_2*var],[dt_3_2*var,0,dt_2*var,0],[0,dt_3_2*var,0,dt_2*var]])
 	return Q
 
 #Dumb measurement proccess noise to avoid 0 variance
