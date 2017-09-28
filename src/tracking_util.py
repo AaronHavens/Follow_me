@@ -5,11 +5,11 @@ from math import *
 
 
 
-class tracker():
-	
-	def __init__(self,init):
-		self.state = init
-		self.
+#class tracker():
+#	
+#	def __init__(self,init):
+#		self.state = init
+#		self.
 
 #Use if your state is [x,y,vx,vy]
 # x_t+1 = x_t + vx*dt
@@ -34,14 +34,13 @@ def H_direct_observe(x_t):
 #Standard white noise formulation
 def white_noise_process(var,dt):
 	#arbitrary noise as a linear function of time
-        dt_2 = dt*dt
-        dt_3 = dt_2*dt
-        dt_4 = dt_3*dt
-        dt_4_4 = dt_4 / 4
-        dt_3_2 = dt_3 / 2
+	dt_2 = dt*dt
+	dt_3 = dt_2*dt
+	dt_4 = dt_3*dt
+	dt_4_4 = dt_4 / 4
+	dt_3_2 = dt_3 / 2
 	Q = np.array([[dt_4_4*var,0,dt_3_2*var,0],[0,dt_4_4*var,0,dt_3_2*var],[dt_3_2*var,0,dt_2*var,0],[0,dt_3_2*var,0,dt_2*var]])
 	return Q
-
 #Dumb measurement proccess noise to avoid 0 variance
 def white_noise_measurement(dt):
 	V = np.array([[2.0*dt,0],[0,2.0*dt]])
@@ -54,7 +53,7 @@ def prediction(x_t,P_t,dt,F_function):
 	x_new = np.dot(F,x_t)
 
 	P_new = np.dot(F,P_t)
-	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(dt)
+	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(4.0,dt)
 	return x_new, P_new
 
 #Perform correction step with new measurement. Supports alternate measurement functions
