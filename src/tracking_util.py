@@ -3,6 +3,14 @@ from math import *
 
 
 
+
+
+class tracker():
+	
+	def __init__(self,init):
+		self.state = init
+		self.
+
 #Use if your state is [x,y,vx,vy]
 # x_t+1 = x_t + vx*dt
 def F_cv_rect(x_t_t,dt):
@@ -63,14 +71,4 @@ def correct(x_t,P_t,z,H_function):
 	P_new = np.dot((I-grad),P_t)
 	
 	return x_new, P_new
-
-#Test Block
-#x = np.array([0,0,0,1])
-#P = np.array([[1.5,0,0,0],[0,1.5,0,0],[0,0,1.5,0],[0,0,0,1.5]])
-#print('state: {}\nCovariance: {}\n'.format(x,P))
-#x, P = prediction(x,P,1.0,F_cv_pol)
-#print('state: {}\nCovariance: {}\n'.format(x,P))
-#z = np.array([1.3,.1])
-#x, P = correct(x,P,z,H_direct_observe)
-#print('state: {}\nCovariance: {}\n'.format(x,P))
 
