@@ -2,6 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import tracking_util as tr
+import error_utils  as err
 from math import *
 
 def make_noisy(x_,y_,var):
@@ -70,7 +71,11 @@ for i in range(iters):
 #	c.update_state(0,-.5)
 #	z = make_noisy(c.x,c.y,.1)
 #	x, P = tr.correct(x,P,z,tr.H_direct_observe)
+theta = err.poly_3_fit(positions[:6,:])
+traj = err.gen_traj(positions[:6,0],theta)
 
-plt.plot(positions[:,0],positions[:,1])
-plt.plot(positions_track[:,0],positions_track[:,1])
+plt.scatter(positions[:,0],positions[:,1])
+plt.plot(traj[:,0],traj[:,1],color = 'r')
+
+#plt.plot(positions_track[:,0],positions_track[:,1])
 plt.show()
