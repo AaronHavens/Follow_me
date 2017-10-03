@@ -20,3 +20,6 @@ def gen_traj(x,theta):
 	for i in range(len(x)):
 		traj[i,1] = theta[0]*x[i]**3 + theta[1]*x[i]**2 + theta[2]*x[i] + theta[3]
 	return traj
+
+def tangent_traj(traj,vehicle_pos):
+	print('do nothing')
