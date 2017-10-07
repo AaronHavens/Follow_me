@@ -53,7 +53,7 @@ def prediction(x_t,P_t,dt,F_function):
 	x_new = np.dot(F,x_t)
 
 	P_new = np.dot(F,P_t)
-	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(4.0,dt)
+	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(.1,dt)
 	return x_new, P_new
 
 #Perform correction step with new measurement. Supports alternate measurement functions
@@ -63,7 +63,7 @@ def correct(x_t,P_t,z,H_function):
 	y = z - h
 	
 	S = np.dot(H,P_t)
-	S = np.dot(S,np.transpose(H)) + white_noise_measurement(.05)
+	S = np.dot(S,np.transpose(H)) + white_noise_measurement(.005)
 	K = np.dot(P_t,np.transpose(H))
 	K = np.dot(K,np.linalg.inv(S))
 	

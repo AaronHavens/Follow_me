@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def poly_3_fit(track_xy):
 	x = track_xy[:,0]
 	y = track_xy[:,1]
@@ -21,5 +22,13 @@ def gen_traj(x,theta):
 		traj[i,1] = theta[0]*x[i]**3 + theta[1]*x[i]**2 + theta[2]*x[i] + theta[3]
 	return traj
 
-def tangent_traj(traj,vehicle_pos):
+def d_x_traj(theta,x):
+	print(theta)
+	a = theta[0]
+	b = theta[1]
+	c = theta[2]
+	return (3*a*x**2 + 2*b*x + c) #gradient
+
+def ot_e_test(traj_x,vehicle_pos):
 	print('do nothing')
+

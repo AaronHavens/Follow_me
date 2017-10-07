@@ -11,14 +11,13 @@ def make_noisy(x_,y_,var):
 	
 	return np.array([x,y])
 
-def PID(car, track):
-	pos_e = 0
+def PID_test(traj_x,car):
+	ct_e = traj_x - car.x
+	ct_e_d = ct_e/abs(ct_e)*car.v*cos(car.theta)
+	p = 1
+	d = 10
+	return  -(p*ct_e + d*ct_e_d)
 
-	der_e = 0
-
-	int_e = 0
-
-	return u_v,u_w
 # Bicycle model dynamics inspired by Stanford Junior code 2008
 class dyn_car():
 	def __init__():
@@ -159,20 +158,23 @@ class car():
 		self.y = y
 		self.v = 0
 		self.theta = theta
+		self.steer = 0
+		self.throttle = 0
 		self.v_max = 10
-		self.u_v_max = 10
-		self.u_w_max = .5
+		self.u_a_max = 10
+		self.u_steer_max = .5
 		self.L = 1.0
 		
-	def update_state(self,u_v,u_w,dt):
+	def update_state(self,u_a,u_w,dt):
 		
-		if(abs(u_v) > self.u_v_max):
-			u_v = self.u_v_max*u_v/(abs(u_v))
-		if(abs(u_w) > self.u_w_max):
-			u_w = self.u_w_max*u_w/(abs(u_w))
-		self.theta += self.v/self.L*u_w*dt
+		if(abs(u_a) > self.u_a_max):
+			u_a = self.u_a_max*u_v/(abs(u_a))
+		if(abs(u_w) > self.u_steer_max):
+			u_w = self.u_steer_max*u_w/(abs(u_w))
+		self.steer = u_w
+		self.theta += self.v/self.L*self.steer*dt
 
-		self.v += u_v*dt	
+		self.v += u_a*dt	
 
 		if(abs(self.v) > self.v_max):
 			self.v = self.v_max*self.v / abs(self.v)
@@ -182,28 +184,38 @@ class car():
 		self.y += self.v*sin(self.theta)*dt
 	
 ## TEST BLOCK
-dt = 1
-c = car(0,0,0)
+dt = .1
+c = car(12,0,pi/2)
 c.v = 1
-iters = 20
+iters = 1000
 positions = np.zeros((iters,2))
 positions_track = np.zeros((iters,2))
-x = np.array([.01,.01,.01,1.3])
+positions_track_ref = np.zeros((iters,2))
+x = np.array([12.01,.01,.01,1.3])
 P = np.array([[.5,0,0,0],[0,.5,0,0],[0,0,.3,0],[0,0,0,.3]])
-
+traj_x = 0
 for i in range(iters):
+
 	positions[i,:] = np.array([c.x,c.y])
 	positions_track[i,:] = x[:2]
 	x,P = tr.prediction(x,P,dt,tr.F_cv_pol)
-	c.update_state(.1,.1,dt)
-	z = make_noisy(c.x,c.y,.05)
+	steer = PID_test(traj_x,c)
+	c.update_state(0,steer,dt)
+	print(c.steer, c.v)
+	z = make_noisy(c.x,c.y,.5)
+	positions_track_ref[i,:] = z
 	x, P = tr.correct(x,P,z,tr.H_direct_observe)
 
-theta = err.poly_3_fit(positions[:6,:])
-traj = err.gen_traj(positions[:6,0],theta)
 
-plt.scatter(positions[:,0],positions[:,1])
+theta = err.poly_3_fit(positions_track[:80,:])
+traj = err.gen_traj(positions_track[:80,0],theta)
+
+dx = err.d_x_traj(theta,positions_track[20,0])
+plt.plot([positions_track[20,0],positions_track[20,0] - 20],[positions_track[20,1],positions_track[2,1] - 20*dx],'--g')
+#plt.scatter(positions[:,0],positions[:,1],s=.5)
 plt.plot(traj[:,0],traj[:,1],color = 'r')
-
-#plt.plot(positions_track[:,0],positions_track[:,1])
+print(traj)
+plt.plot([0,0],[0,100],'--r')
+plt.scatter(positions_track_ref[:,0],positions_track_ref[:,1], s=.5)
+plt.scatter(positions_track[:,0],positions_track[:,1],s=.8)
 plt.show()
