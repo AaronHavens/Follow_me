@@ -24,7 +24,10 @@ def F_cv_pol(x_t_t,dt):
 	theta,v = x_t_t[2:] 
 	F = np.array([[1,0,-sin(theta)*v*dt,cos(theta)*dt],[0,1,cos(theta)*v*dt,sin(theta)*dt],[0,0,1,0],[0,0,0,1]])
 	return F
-
+def f_pol(x_t,dt):
+	x = x_t[0] + x_t[3]*cos(x_t[2])*dt
+	y = x_t[1] + x_t[3]*sin(x_t[2])*dt
+	return np.array([x,y,x_t[2],x_t[3]])
 #Observation function assumes complete observability. Very Naive
 def H_direct_observe(x_t):
 	H = np.array([[1.0,0,0,0],[0,1.0,0,0]])
@@ -50,7 +53,7 @@ def white_noise_measurement(dt):
 def prediction(x_t,P_t,dt,F_function):
 	F = F_function(x_t,dt)
 	
-	x_new = np.dot(F,x_t)
+	x_new = f_pol(x_t,dt)
 
 	P_new = np.dot(F,P_t)
 	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(.1,dt)
