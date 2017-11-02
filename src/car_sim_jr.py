@@ -11,6 +11,15 @@ def make_noisy(x_,y_,var):
 	
 	return np.array([x,y])
 
+def pursuit_turn_angle(car_pos, target):
+	dx = target[0] - car_pos[0]
+	dy = target[1] - car_pos[1]
+	alpha = atan2(dy,dx)
+	l = sqrt(dx*dx + dy*dy)
+	print(l)
+	steer = -2*dx/(l*l) #output steering radius to join target
+	return steer
+
 def PID_test(traj_x,car):
 	ct_e = traj_x - car.x
 	ct_e_d = ct_e/abs(ct_e)*car.v*cos(car.theta)
@@ -186,43 +195,45 @@ class car():
 ## TEST BLOCK
 dt = .1
 t_t = 0
-c = car(12,0,pi/2)
-c.v = 5
+c = car(0,0,pi/2)
+c.v = 1
 iters = 1000
 positions = np.zeros((iters,2))
 positions_track = np.zeros((iters,2))
 positions_track_ref = np.zeros((iters,2))
 x = np.array([12.01,.01,pi/2+.1,5])
 P = np.array([[.5,0,0,0],[0,.5,0,0],[0,0,.3,0],[0,0,0,.3]])
-traj_x = 0
-t = np.zeros(iters)
-for i in range(iters):
-	t_t += dt
-	t[i] = t_t
-	positions[i,:] = np.array([c.x,c.y])
-	positions_track[i,:] = x[:2]
-	x,P = tr.prediction(x,P,dt,tr.F_cv_pol)
-	steer = PID_test(traj_x,c)
+
+steer = pursuit_turn_angle([0,0,0,pi/2],[10,20])
+print(steer)
+dt = 1
+path = np.zeros((20,2))
+for i in range(1,20):
 	c.update_state(0,steer,dt)
-	z = make_noisy(c.x,c.y,.45)
-	positions_track_ref[i,:] = z
-	x, P = tr.correct(x,P,z,tr.H_direct_observe)
-	#if(i%20 == 0):
-		#plt.arrow(x[0],x[1], x[3]*cos(x[2]), x[3]*sin(x[2]), head_width=0.1, head_length=0.1, fc='k', ec='k')
+	path[i,:] = [c.x,c.y]
+plt.plot(path[:,0],path[:,1],'--r')
+plt.scatter(10,20)
+# t = np.zeros(iters)
+# for i in range(iters):
+# 	t_t += dt
+# 	t[i] = t_t
+# 	positions[i,:] = np.array([c.x,c.y])
+# 	positions_track[i,:] = x[:2]
+# 	x,P = tr.prediction(x,P,dt,tr.F_cv_pol)
+# 	steer = PID_test(traj_x,c)
+# 	c.update_state(0,steer,dt)
+# 	z = make_noisy(c.x,c.y,.45)
+# 	positions_track_ref[i,:] = z
+# 	x, P = tr.correct(x,P,z,tr.H_direct_observe)
+# 	#if(i%20 == 0):
+# 		#plt.arrow(x[0],x[1], x[3]*cos(x[2]), x[3]*sin(x[2]), head_width=0.1, head_length=0.1, fc='k', ec='k')
 
-track_segs = err.param_fit(positions_track,t,40)
-ax = plt.axes()
-ax.plot(track_segs[:,0],track_segs[:,1])
+# track_segs = err.param_fit(positions_track,t,40)
+# ax = plt.axes()
+# ax.plot(track_segs[:,0],track_segs[:,1])
 
-# traj = err.gen_traj(positions_track[:80,0],theta)
-
-#dx = err.d_x_traj(theta,positions_track[20,0])
-#plt.plot([positions_track[20,0],positions_track[20,0] - 20],[positions_track[20,1],positions_track[2,1] - 20*dx],'--g')
-#plt.scatter(positions[:,0],positions[:,1],s=.5)
-#plt.plot(traj[:,0],traj[:,1],color = 'r')
-#print(traj)
-ax.plot([0,0],[0,100],'--r')
-ax.scatter(positions_track_ref[:,0],positions_track_ref[:,1], s=.5)
-ax.scatter(positions_track[:,0],positions_track[:,1],s=.8)
+# ax.plot([0,0],[0,100],'--r')
+# ax.scatter(positions_track_ref[:,0],positions_track_ref[:,1], s=.5)
+# ax.scatter(positions_track[:,0],positions_track[:,1],s=.8)
 plt.axis('equal')
 plt.show()

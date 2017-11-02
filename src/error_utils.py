@@ -49,6 +49,16 @@ def d_x_traj(theta,x):
 	y2 = 3*a*(x+1)**2 + 2*b*(x+1) + c
 	norm = np.sqrt(1 + (y2 - y1)**2)
 	return [(y2-y1)/norm , 1/norm]
+
 def ot_e_test(traj_x,vehicle_pos):
 	print('do nothing')
+
+def carrot(car,d):
+	carrot_x = vehicle.x + d*cos(car.theta)
+	carrox_y = vehicle.y + d*sin(car.theta)
+	return [carrot_x, carrox_y]
+
+def e_y(car, carrot, traj):
+	return 0
+	#x = diff(traj,proj)
 
