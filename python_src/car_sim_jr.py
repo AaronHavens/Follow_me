@@ -191,7 +191,8 @@ class car():
 		
 		self.x += self.v*cos(self.theta)*dt
 		self.y += self.v*sin(self.theta)*dt
-	
+	def linear_update_state(self, u_a,u_w, dt):
+		return 0	
 ## TEST BLOCK
 dt = .1
 t_t = 0
