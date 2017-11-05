@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = //home/aaron/Documents/Follow_me/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -123,6 +123,19 @@ car_sim_engine/fast:
 	$(MAKE) -f CMakeFiles/car_sim_engine.dir/build.make CMakeFiles/car_sim_engine.dir/build
 .PHONY : car_sim_engine/fast
 
+#=============================================================================
+# Target rules for targets named ekf
+
+# Build rule for target.
+ekf: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ekf
+.PHONY : ekf
+
+# fast build rule for target.
+ekf/fast:
+	$(MAKE) -f CMakeFiles/ekf.dir/build.make CMakeFiles/ekf.dir/build
+.PHONY : ekf/fast
+
 src/car_sim_engine.o: src/car_sim_engine.cpp.o
 
 .PHONY : src/car_sim_engine.o
@@ -150,18 +163,49 @@ src/car_sim_engine.cpp.s:
 	$(MAKE) -f CMakeFiles/car_sim_engine.dir/build.make CMakeFiles/car_sim_engine.dir/src/car_sim_engine.cpp.s
 .PHONY : src/car_sim_engine.cpp.s
 
+src/track/ekf.o: src/track/ekf.cpp.o
+
+.PHONY : src/track/ekf.o
+
+# target to build an object file
+src/track/ekf.cpp.o:
+	$(MAKE) -f CMakeFiles/ekf.dir/build.make CMakeFiles/ekf.dir/src/track/ekf.cpp.o
+.PHONY : src/track/ekf.cpp.o
+
+src/track/ekf.i: src/track/ekf.cpp.i
+
+.PHONY : src/track/ekf.i
+
+# target to preprocess a source file
+src/track/ekf.cpp.i:
+	$(MAKE) -f CMakeFiles/ekf.dir/build.make CMakeFiles/ekf.dir/src/track/ekf.cpp.i
+.PHONY : src/track/ekf.cpp.i
+
+src/track/ekf.s: src/track/ekf.cpp.s
+
+.PHONY : src/track/ekf.s
+
+# target to generate assembly for a file
+src/track/ekf.cpp.s:
+	$(MAKE) -f CMakeFiles/ekf.dir/build.make CMakeFiles/ekf.dir/src/track/ekf.cpp.s
+.PHONY : src/track/ekf.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... car_sim_engine"
+	@echo "... edit_cache"
+	@echo "... ekf"
 	@echo "... src/car_sim_engine.o"
 	@echo "... src/car_sim_engine.i"
 	@echo "... src/car_sim_engine.s"
+	@echo "... src/track/ekf.o"
+	@echo "... src/track/ekf.i"
+	@echo "... src/track/ekf.s"
 .PHONY : help
 
 

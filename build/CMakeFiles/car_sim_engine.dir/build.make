@@ -90,6 +90,7 @@ car_sim_engine_EXTERNAL_OBJECTS =
 
 car_sim_engine: CMakeFiles/car_sim_engine.dir/src/car_sim_engine.cpp.o
 car_sim_engine: CMakeFiles/car_sim_engine.dir/build.make
+car_sim_engine: libekf.a
 car_sim_engine: CMakeFiles/car_sim_engine.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=//home/aaron/Documents/Follow_me/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable car_sim_engine"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/car_sim_engine.dir/link.txt --verbose=$(VERBOSE)
