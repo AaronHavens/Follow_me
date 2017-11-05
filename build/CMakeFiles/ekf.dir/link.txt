@@ -1,2 +1,0 @@
-/usr/bin/ar qc libekf.a  CMakeFiles/ekf.dir/src/track/ekf.cpp.o
-/usr/bin/ranlib libekf.a
