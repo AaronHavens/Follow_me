@@ -24,11 +24,48 @@ def F_cv_pol(x_t_t,dt):
 	theta,v = x_t_t[2:] 
 	F = np.array([[1,0,-sin(theta)*v*dt,cos(theta)*dt],[0,1,cos(theta)*v*dt,sin(theta)*dt],[0,0,1,0],[0,0,0,1]])
 	return F
+def F_car(x_t,u_t,dt):
+	a = u_t[0]
+	g = u_t[1]
+	x = x_t[0]
+	y = x_t[1]
+	theta = x_t[2]
+	v = x_t[3]
+	b = (v+a*dt)*dt
+	L = 1.0
+	F = np.array([[1,0,-b*sin(g*b/L+theta),dt*cos(g*b/L+theta)-g*dt*b*sin(g*b/L+theta)/L],[0,1,b*cos(g*b/L+theta),g*dt*b*cos(g*b/L+theta)/L+dt*sin(g*b/L+theta)],[0,0,1,g*dt/L],[0,0,0,1]])
+	return F
 def f_pol(x_t,dt):
 	x = x_t[0] + x_t[3]*cos(x_t[2])*dt
 	y = x_t[1] + x_t[3]*sin(x_t[2])*dt
 	return np.array([x,y,x_t[2],x_t[3]])
 #Observation function assumes complete observability. Very Naive
+def f_car(x_t,u_t,dt):
+	a = u_t[0]
+	g = u_t[1]
+	x = x_t[0]
+	y = x_t[1]
+	theta = x_t[2]
+	v = x_t[3]
+	L = 1.0
+	if(abs(a) > 10):
+		a = 10*a/abs(a)
+	if(abs(g) > .5):
+		g = .5*g/(abs(g))
+
+	theta += v/L*g*dt
+
+	v += a*dt	
+
+	if(abs(v) > 1000):
+		v = 1000*v / abs(v)
+		
+		
+	x += v*cos(theta)*dt
+	y += v*sin(theta)*dt 
+
+	return np.array([x,y,theta,v])
+
 def H_direct_observe(x_t):
 	H = np.array([[1.0,0,0,0],[0,1.0,0,0]])
 	h = np.array([x_t[0],x_t[1]])
@@ -58,7 +95,14 @@ def prediction(x_t,P_t,dt,F_function):
 	P_new = np.dot(F,P_t)
 	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(.1,dt)
 	return x_new, P_new
+def prediction_car(x_t,P_t,u_t,dt,F_function):
+	F = F_function(x_t,u_t,dt)
+	
+	x_new = f_car(x_t,u_t,dt)
 
+	P_new = np.dot(F,P_t)
+	P_new = np.dot(P_new,np.transpose(F)) + white_noise_process(.1,dt)
+	return x_new, P_new
 #Perform correction step with new measurement. Supports alternate measurement functions
 def correct(x_t,P_t,z,H_function):
 	h, H = H_function(x_t)

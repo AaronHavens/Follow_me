@@ -169,7 +169,7 @@ class car():
 		self.theta = theta
 		self.steer = 0
 		self.throttle = 0
-		self.v_max = 10
+		self.v_max = 1000
 		self.u_a_max = 10
 		self.u_steer_max = .5
 		self.L = 1.0
@@ -177,7 +177,7 @@ class car():
 	def update_state(self,u_a,u_w,dt):
 		
 		if(abs(u_a) > self.u_a_max):
-			u_a = self.u_a_max*u_v/(abs(u_a))
+			u_a = self.u_a_max*u_a/(abs(u_a))
 		if(abs(u_w) > self.u_steer_max):
 			u_w = self.u_steer_max*u_w/(abs(u_w))
 		self.steer = u_w
@@ -194,47 +194,51 @@ class car():
 	def linear_update_state(self, u_a,u_w, dt):
 		return 0	
 ## TEST BLOCK
-dt = .1
+dt = 1
 t_t = 0
 c = car(0,0,pi/2)
-c.v = 1
+c.v = 1.0
 iters = 1000
 positions = np.zeros((iters,2))
 positions_track = np.zeros((iters,2))
+positions_track_car = np.zeros((iters,2))
 positions_track_ref = np.zeros((iters,2))
-x = np.array([12.01,.01,pi/2+.1,5])
+x = np.array([0.1,0.1,0.1,1.0])
 P = np.array([[.5,0,0,0],[0,.5,0,0],[0,0,.3,0],[0,0,0,.3]])
+x_car = np.array([0.1,0.1,0.1,1.0])
+P_car = np.array([[.5,0,0,0],[0,.5,0,0],[0,0,.3,0],[0,0,0,.3]])
+t = np.zeros(iters)
+errors = np.zeros((iters,3))
+steer = 30/360*2*pi
+accel = 2
+for i in range(iters):
+	t_t += dt
+	t[i] = t_t
 
-steer = pursuit_turn_angle([0,0,0,pi/2],[10,20])
-print(steer)
-dt = 1
-path = np.zeros((20,2))
-for i in range(1,20):
-	c.update_state(0,steer,dt)
-	path[i,:] = [c.x,c.y]
-plt.plot(path[:,0],path[:,1],'--r')
-plt.scatter(10,20)
-# t = np.zeros(iters)
-# for i in range(iters):
-# 	t_t += dt
-# 	t[i] = t_t
-# 	positions[i,:] = np.array([c.x,c.y])
-# 	positions_track[i,:] = x[:2]
-# 	x,P = tr.prediction(x,P,dt,tr.F_cv_pol)
-# 	steer = PID_test(traj_x,c)
-# 	c.update_state(0,steer,dt)
-# 	z = make_noisy(c.x,c.y,.45)
-# 	positions_track_ref[i,:] = z
-# 	x, P = tr.correct(x,P,z,tr.H_direct_observe)
-# 	#if(i%20 == 0):
-# 		#plt.arrow(x[0],x[1], x[3]*cos(x[2]), x[3]*sin(x[2]), head_width=0.1, head_length=0.1, fc='k', ec='k')
+	positions[i,:] = np.array([c.x,c.y])
+	positions_track[i,:] = x[:2]
+	positions_track_car[i,:] = x_car[:2]
+	errors[i,0] = i
+	errors[i,1] = sqrt((positions_track[i,0]-c.x)**2+(positions_track[i,1]-c.y)**2)
+	errors[i,2] = sqrt((positions_track_car[i,0]-c.x)**2+(positions_track_car[i,1]-c.y)**2)
+	u = np.array([accel,steer])
+	x_car,P_car = tr.prediction_car(x_car,P_car,u,dt,tr.F_car)
+	x,P = tr.prediction(x,P,dt,tr.F_cv_pol)
 
-# track_segs = err.param_fit(positions_track,t,40)
-# ax = plt.axes()
-# ax.plot(track_segs[:,0],track_segs[:,1])
+	c.update_state(accel,steer,dt)
+	z = make_noisy(c.x,c.y,.2)
+	positions_track_ref[i,:] = z
+	x, P = tr.correct(x,P,z,tr.H_direct_observe)
+	x_car, P_car = tr.correct(x_car,P_car,z,tr.H_direct_observe)
+
 
 # ax.plot([0,0],[0,100],'--r')
 # ax.scatter(positions_track_ref[:,0],positions_track_ref[:,1], s=.5)
-# ax.scatter(positions_track[:,0],positions_track[:,1],s=.8)
+plt.scatter(positions_track[:,0],positions_track[:,1],c='r')
+plt.scatter(positions_track_car[:,0],positions_track_car[:,1],c='g')
+plt.scatter(positions[:,0],positions[:,1])
 plt.axis('equal')
+plt.show()
+plt.plot(errors[:,0],errors[:,1],c='r')
+plt.plot(errors[:,0],errors[:,2],c='b')
 plt.show()
