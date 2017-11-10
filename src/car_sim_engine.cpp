@@ -9,6 +9,8 @@ using namespace std;
 int main ()
 {
 	vehicle car(0.0,0.0,0.0,0.0,2.0);
-	car.update(0.0,2.0,1000000);	
-	cout << car.get_state() <<endl;	
+	for(unsigned int i = 0; i < 100; i++){
+		car.update(0.5,1.0,1000000);
+		cout<<car.get_state()<<endl;
+	}	
 }
