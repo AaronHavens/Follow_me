@@ -25,10 +25,11 @@ set(QPSOURCE
   	src/qpOASES/src/SQProblem.cpp
 	src/qpOASES/src/Utils.cpp)
 
-add_library(ekf src/track/ekf.cpp)
+add_library(ekf src/tracking/ekf.cpp)
 add_library(vehicle src/simulator/vehicle.cpp)
+add_library(error_utils src/control/error_utils.cpp)
 
 add_executable(car_sim_engine src/car_sim_engine.cpp)
 add_executable(qp_example ${QPSOURCE} src/control/qp_example.cpp)
-
-target_link_libraries(car_sim_engine ekf vehicle)
+target_link_libraries(ekf vehicle)
+target_link_libraries(car_sim_engine ekf vehicle error_utils)

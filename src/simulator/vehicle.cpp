@@ -33,6 +33,7 @@ void vehicle::update(double steer_u, double throttle_u, const unsigned long dt_u
 		steer_u = max_steer*steer_u/abs(steer_u);
 	
 	theta += speed/wb_L*steer_u*dt;
+	theta = pi_2_pi(theta);
 	speed += throttle_u*dt;
 
 
@@ -49,3 +50,14 @@ Eigen::VectorXd vehicle::get_state()
 	ret_state << x,y,theta,speed;
 	return ret_state;
 }
+
+double pi_2_pi(const double theta)
+{
+	double ret_theta = theta;
+	while(ret_theta > M_PI)
+		ret_theta -= 2.0*M_PI;
+	while(ret_theta < M_PI)
+		ret_theta += 2.0*M_PI;
+	return ret_theta;
+}
+

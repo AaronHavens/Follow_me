@@ -1,7 +1,7 @@
 #include"ekf.h"
 #include<iostream>
 #include<math.h>
-
+#include "vehicle.h"
 ekf::ekf(const VectorXd prior_state,const unsigned long t_usec)
 {
 	state_size = prior_state.size();
@@ -40,7 +40,7 @@ void ekf::measurement_update(const VectorXd z,const unsigned long t_usec)
 
 	state += K*y_innovation;
 	MatrixXd I = MatrixXd::Identity(state_size,state_size);
-	
+	state(2) = pi_2_pi(state(2));	
 	cov = (I-K*H)*cov;	
 }
 

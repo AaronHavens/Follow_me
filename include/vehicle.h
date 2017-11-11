@@ -7,7 +7,10 @@ class vehicle
 
 
 	public:
-		vehicle(const double x, const double y,const double theta, const double speed,const double wheel_base_l);
+		vehicle(const double x, const double y,
+		const double theta, const double speed,
+		const double wheel_base_l);
+
 		void update(double steer_u, double throttle_u,const unsigned long dt_usec);
 		Eigen::VectorXd get_state();
 	private:
@@ -20,3 +23,5 @@ class vehicle
 
 
 };
+
+double pi_2_pi(const double theta);
