@@ -7,8 +7,8 @@ using namespace std;
 
 
 double cross_track_e(VectorXd vf, VectorXd vl)
-{
-
+{	
+	
 	double x_1,y_1,theta_1,v_1;
 	double x_2,y_2;
 	
@@ -17,7 +17,7 @@ double cross_track_e(VectorXd vf, VectorXd vl)
 	y_1 = vf(1);
 	theta_1 = vf(2);
 	v_1 = vf(3);
-
+	MatrixXd T(3,3);
 	x_2 = vl(0);
 	y_2 = vl(1);
 
@@ -56,4 +56,35 @@ double on_track_e(VectorXd vf, VectorXd vl)
 
 	double ote = sqrt(dx_2+dy_2);
 	return ote;
+}
+
+VectorXd all_track_e(VectorXd vehicle_state, VectorXd ref_state)
+{
+	double thetac = vehicle_state(2);
+
+	VectorXd diff = ref_state.segment(0,3) - vehicle_state.segment(0,3);
+
+	MatrixXd T(3,3);
+
+	T <<cos(thetac), sin(thetac), 0,
+			-sin(thetac), cos(thetac),0,
+			0, 0, 1;
+
+	VectorXd track_errors = T*diff;
+	
+	return track_errors; //[x_e,y_e,theta_e]^T from vehicle reference.
+		
+}
+
+VectorXd to_global_frame(VectorXd vehicle_state)
+{
+	double theta_car = vehicle_state(2);
+
+	MatrixXd T(3,2);
+	T <<cos(theta_car), 0,
+			sin(theta_car), 0,
+			0, 1;
+
+	VectorXd global_state = T * vehicle_state.segment(2,2);
+	return global_state;
 }

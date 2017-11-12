@@ -18,9 +18,13 @@ int main ()
 	}
 	VectorXd vf(4);
 	VectorXd track(4);
-	vf << 1,1,M_PI/4,1;
+	vf << 1,1,M_PI/2,1;
 	track<<0,0,M_PI/4,1;
 	double cte = cross_track_e(vf,track);
 	double ote = on_track_e(vf,track);
 	cout << cte <<","<<ote<<endl;
+
+	VectorXd all_e = all_track_e(vf,track);
+
+	cout <<all_e<<endl;
 }
