@@ -6,7 +6,7 @@ import math
 #constant speed value for now
 
 #return jacobians for ackerman steering kinematics given a reference center
-def ackerman_model(state_center, input_center, delta_time):
+def ackerman_model(state_center, input_center, delta_time,vf=5.0):
 	
 
 	delta_ref  = input_center[0]
@@ -25,7 +25,7 @@ def ackerman_model(state_center, input_center, delta_time):
 
 class MPC_controller(object):
 
-	def __init__(dynamics, state_0, u_min, u_max, u_cost, horizon,track_weighting):
+	def __init__(self,dynamics, state_0, u_min, u_max, u_cost, horizon,track_weighting):
 		
 		self.dynamics = dynamics
 		self.u_min = u_min
@@ -34,8 +34,9 @@ class MPC_controller(object):
 		self.track_weighting = track_weighting
 		self.horizon = horizon
 
-		P, H = dyn.pred_mat(state_0)
+		#P, H = self.construct_pred_mat(state_0)
         self.P = P
+        self.H = H
 
 
     def construct_pred_mat(self,ref_traj, ref_inputs):
@@ -45,26 +46,66 @@ class MPC_controller(object):
     	P = np.zeros((a_dim*horizon,a_dim))
     	H = np.zeros((a_dim*horizon,b_dim*horizon))
 
-    	As = np.zeros((a_dim,a_dim*horizon))
-    	Bs = np.zeros((a_dim,b_dim*horizon))
+    	As = np.zeros(horizon)
+    	Bs = np.zeros(horizon)
     	#last_A = np.zeros((a_dim,a_dim))
     	for i in range(horizon):
     		index_a = i*a_dim
     		index_b = i*b_dim
 
-    		As[:,index_a:index_a+a_dim], Bs[:,index_b:index_b+index_b] = self.dynamics(ref_traj[0],ref_inputs[0])
+    		As[i], Bs[i] = self.dynamics(ref_traj[i],ref_inputs[i])
     		
-    		if "last_A" not in locals():
-    			As[:,index_a:index_a+a_dim] = A
-    			last_A = A
-    		else:
-    		As[:,index_a:index_a+a_dim] = np.dot(A,last_A)
-    	for 
+    	alpha = np.zeros((a_dim*horizon,a_dim*horizon))
+
+    	for i in range(horizon):
+    		A_sum = None
+    		for j in range(i, horizon):
+    			if not A_sum:
+    				A_sum = As[k]
+    			else:
+    				A_sum = np.dot(As[j],A_sum)
+    			l=horizon-i
+    			alpha[i*a_dim:i*a_dim+a_dim,l*a_dim:l*a_dim+a_dim] = A_sum
+    	for i in reversed(1,range(horizon)):
+    		P[i*a_dim:i*a_dim+a_dim,:] = alpha[0,i]
+
+    	i_index = 0
+    	j_index = 0 
+    	for i in range(horizon):
+    		j = horizon
+    		for j in range(i):
+    			H[i*b_dim:i*b_dim+b_dim,j*a_dim:j*a_dim+a_dim] = np.dot(alpha[i_index,j_index],Bs[j_index])
+    			j_index -= 1
+    		if i == j: H[i*b_dim:i*b_dim+b_dim,j*a_dim:j*a_dim+a_dim] = Bs[j_index]
+    		i_index += 1
+
+    	return P, H
+
 	def compute_linearized_dyn(self, ref_traj):
 		P, H = self.pred_mat(ref_traj)
 		self.P = P
 		self.H = H
 
-	def optimize_u(self, ref_traj):
+def construct_trajectory(horizon):
+	ref_traj = np.zeros(horizon)
+	ref_inputs = np.zeros(horizon)
+	for i in range(horizon):
+		ref_traj[i] = 0.0
+		ref_inputs[i] = 0.0 + np.uniform(-0.05, 0.05)
+
+state = np.array([5.0,1.0,0.0])
+
+horizon = 5
+u_min = -2.0
+u_max = 2.0
+u_cost = 1.0
+track_weighting = 0
+
+
+
+controller = MPC_controller(ackerman_model,state, u_min, u_max, u_cost, horizon,track_weighting)
+
+
+
 
 
