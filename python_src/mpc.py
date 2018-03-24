@@ -1,4 +1,4 @@
-import cvxopt as cvx
+#import cvxopt as cvx
 import numpy as np
 import math
 
@@ -58,26 +58,35 @@ class MPC_controller(object):
         alpha = np.zeros((a_dim*horizon,a_dim*horizon))
         for i in range(horizon):
             A_sum = np.zeros((a_dim,a_dim))
-            for j in range(i, horizon):
+            items_sumed = []
+            for j in range(i,horizon):
                 if A_sum.all() == 0.0:
                     A_sum = As[j]
                 else:
                     A_sum = np.dot(As[j],A_sum)
-                l=horizon-i
-                alpha[i*a_dim:i*a_dim+a_dim,l*a_dim-a_dim:l*a_dim] = A_sum
+                l=horizon-j-1
+                items_sumed.append(j)
+                alpha[i*a_dim:i*a_dim+a_dim,l*a_dim:l*a_dim+a_dim] = A_sum
         i_index = 0
-        print(alpha)
-        for i in reversed(range(1,horizon)):
-            P[i_index*a_dim:i_index*a_dim+a_dim,:] = alpha[0,i]
+      
+        for i in reversed(range(horizon)):
+            P[i_index*a_dim:i_index*a_dim+a_dim,:] = alpha[0:a_dim,i*a_dim:i*a_dim+a_dim]
+            i_index += 1
 
-        i_index = 0
-        j_index = 0 
+        i_index = 0 
         for i in range(horizon):
             j_index = horizon-1
-            for j in range(i):
-                H[i*a_dim:i*a_dim+a_dim,j*b_dim:j*b_dim+b_dim] = np.dot(alpha[i_index,j_index],Bs[j_index])
+            for j in range(i+1):
+                print(i,j)
+
+                print(i_index,j_index)
+                print(Bs[j],'B')
+                print(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],'alpa')
+                print(np.dot(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],Bs[j]))
+                H[i*a_dim:i*a_dim+a_dim,j*b_dim:j*b_dim+b_dim] = np.dot(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],Bs[j])
+                
                 j_index -= 1
-            if i == j: H[i*a_dim:i*a_dim+a_dim,j*b_dim:j*b_dim+b_dim] = Bs[j_index]
+            if i == j: H[i*a_dim:i*a_dim+a_dim,j*b_dim:j*b_dim+b_dim] = Bs[j]
             i_index += 1
 
         return P, H
@@ -97,7 +106,7 @@ def construct_trajectory(horizon):
 
 state = np.array([5.0,1.0,0.0])
 
-horizon = 5
+horizon = 2
 u_min = -2.0
 u_max = 2.0
 u_cost = 1.0
@@ -109,7 +118,5 @@ controller = MPC_controller(ackerman_model,state, u_min, u_max, u_cost, horizon,
 ref_traj, ref_inputs = construct_trajectory(horizon)
 
 P,H=controller.construct_pred_mat(ref_traj, ref_inputs)
-
 print(P)
 print(H)
-
