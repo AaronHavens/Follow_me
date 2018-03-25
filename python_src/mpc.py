@@ -47,7 +47,7 @@ class MPC_controller(object):
         As = []
         Bs = []
         #last_A = np.zeros((a_dim,a_dim))
-        for i in range(horizon):
+        for i in range(horizon+1):
             index_a = i*a_dim
             index_b = i*b_dim
 
@@ -55,20 +55,19 @@ class MPC_controller(object):
             As.append(A)
             Bs.append(B)
             
-        alpha = np.zeros((a_dim*horizon,a_dim*horizon))
-        for i in range(horizon):
+        alpha = np.zeros((a_dim*(horizon+1),a_dim*(horizon+1)))
+        for i in range(horizon+1):
             A_sum = np.zeros((a_dim,a_dim))
             items_sumed = []
-            for j in range(i,horizon):
+            for j in range(i,horizon+1):
                 if A_sum.all() == 0.0:
                     A_sum = As[j]
                 else:
                     A_sum = np.dot(As[j],A_sum)
-                l=horizon-j-1
+                l=horizon-j
                 items_sumed.append(j)
                 alpha[i*a_dim:i*a_dim+a_dim,l*a_dim:l*a_dim+a_dim] = A_sum
         i_index = 0
-      
         for i in reversed(range(horizon)):
             P[i_index*a_dim:i_index*a_dim+a_dim,:] = alpha[0:a_dim,i*a_dim:i*a_dim+a_dim]
             i_index += 1
@@ -77,12 +76,6 @@ class MPC_controller(object):
         for i in range(horizon):
             j_index = horizon-1
             for j in range(i+1):
-                print(i,j)
-
-                print(i_index,j_index)
-                print(Bs[j],'B')
-                print(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],'alpa')
-                print(np.dot(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],Bs[j]))
                 H[i*a_dim:i*a_dim+a_dim,j*b_dim:j*b_dim+b_dim] = np.dot(alpha[i_index*a_dim:i_index*a_dim+a_dim,j_index*a_dim:j_index*a_dim+a_dim],Bs[j])
                 
                 j_index -= 1
@@ -115,7 +108,7 @@ track_weighting = 0
 
 
 controller = MPC_controller(ackerman_model,state, u_min, u_max, u_cost, horizon,track_weighting)
-ref_traj, ref_inputs = construct_trajectory(horizon)
+ref_traj, ref_inputs = construct_trajectory(horizon+1)
 
 P,H=controller.construct_pred_mat(ref_traj, ref_inputs)
 print(P)
